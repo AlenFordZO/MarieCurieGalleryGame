@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>9-Marie Curie Memory Match</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #001f3f, #0074D9);
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    margin: 20px 0 10px;
+    font-size: 2rem;
+  }
+  p {
+    margin-bottom: 20px;
+  }
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    gap: 12px;
+    justify-content: center;
+    margin: 20px auto;
+  }
+  .card {
+    width: 100px;
+    height: 100px;
+    background: #39CCCC;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    perspective: 600px;
+  }
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s;
+    transform-style: preserve-3d;
+    position: relative;
+  }
+  .card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+  .card-front, .card-back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    border-radius: 10px;
+  }
+  .card-front {
+    background: #001f3f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  .card-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  .card-back {
+    transform: rotateY(180deg);
+  }
+  .win-message {
+    display: none;
+    font-size: 1.5rem;
+    margin-top: 20px;
+    background: rgba(0,0,0,0.6);
+    padding: 15px;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔬 9-Marie Curie Memory Match</h1>
+<p>Match all the science-themed photo pairs!</p>
+<div class="game-board" id="gameBoard"></div>
+<div class="win-message" id="winMessage">🎉 Congratulations! You matched them all! 🚀</div>
+
+<script>
+const images = [
+  'https://via.placeholder.com/100?text=Atom',
+  'https://via.placeholder.com/100?text=Lab',
+  'https://via.placeholder.com/100?text=Microscope',
+  'https://via.placeholder.com/100?text=Flask',
+  'https://via.placeholder.com/100?text=DNA',
+  'https://via.placeholder.com/100?text=Marie+Curie'
+];
+
+let cardsArray = [...images, ...images];
+cardsArray.sort(() => 0.5 - Math.random());
+
+const gameBoard = document.getElementById('gameBoard');
+let flippedCards = [];
+let matchedPairs = 0;
+
+function createBoard() {
+  cardsArray.forEach(imgSrc => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.dataset.image = imgSrc;
+
+    const cardInner = document.createElement('div');
+    cardInner.classList.add('card-inner');
+
+    const cardFront = document.createElement('div');
+    cardFront.classList.add('card-front');
+    cardFront.textContent = "🔬";
+
+    const cardBack = document.createElement('div');
+    cardBack.classList.add('card-back');
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    cardBack.appendChild(img);
+
+    cardInner.appendChild(cardFront);
+    cardInner.appendChild(cardBack);
+    card.appendChild(cardInner);
+
+    card.addEventListener('click', flipCard);
+    gameBoard.appendChild(card);
+  });
+}
+
+function flipCard() {
+  if (flippedCards.length === 2 || this.classList.contains('matched')) return;
+
+  this.classList.add('flipped');
+  flippedCards.push(this);
+
+  if (flippedCards.length === 2) {
+    setTimeout(checkMatch, 600);
+  }
+}
+
+function checkMatch() {
+  const [card1, card2] = flippedCards;
+  if (card1.dataset.image === card2.dataset.image) {
+    card1.classList.add('matched');
+    card2.classList.add('matched');
+    matchedPairs++;
+    if (matchedPairs === images.length) {
+      document.getElementById('winMessage').style.display = 'block';
+    }
+  } else {
+    card1.classList.remove('flipped');
+    card2.classList.remove('flipped');
+  }
+  flippedCards = [];
+}
+
+createBoard();
+</script>
+
+</body>
+</html>
